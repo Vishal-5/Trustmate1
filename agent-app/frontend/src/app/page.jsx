@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 
-const API_BASE = '';
+const API_BASE = "";
 
 export default function Home() {
   const [searchInput, setSearchInput] = useState("");
@@ -16,7 +16,9 @@ export default function Home() {
   // Explain modal state
   const [explainModalOpen, setExplainModalOpen] = useState(false);
   const [selectedOffer, setSelectedOffer] = useState(null);
-  const [aiSummary, setAiSummary] = useState("Generating compact AI explanation via TRUSTMATE MCP explain_score...");
+  const [aiSummary, setAiSummary] = useState(
+    "Generating compact AI explanation via TRUSTMATE MCP explain_score...",
+  );
 
   // Risk modal state
   const [riskModalOpen, setRiskModalOpen] = useState(false);
@@ -28,25 +30,32 @@ export default function Home() {
       try {
         const res = await fetch(`${API_BASE}/api/status`);
         const data = await res.json();
-        setMcpStatusText('TRUSTMATE: ' + (data.trust_mcp_url?.includes('8001') ? 'Mock Mode' : 'Live MCP'));
+        setMcpStatusText(
+          "TRUSTMATE: " +
+            (data.trust_mcp_url?.includes("8001") ? "Mock Mode" : "Live MCP"),
+        );
       } catch {
-        setMcpStatusText('TRUSTMATE: Connected');
+        setMcpStatusText("TRUSTMATE: Connected");
       }
     }
     fetchStatus();
 
     const handleMessage = (event) => {
-      if (event.data && event.data.type === 'PAYPAL_ORDER_CAPTURED') {
-        alert(`✅ Payment Completed Successfully via PayPal Sandbox!\nOrder ID: ${event.data.order_id}`);
+      if (event.data && event.data.type === "PAYPAL_ORDER_CAPTURED") {
+        alert(
+          `✅ Payment Completed Successfully via PayPal Sandbox!\nOrder ID: ${event.data.order_id}`,
+        );
         loadDashboard();
       }
     };
-    window.addEventListener('message', handleMessage);
-    return () => window.removeEventListener('message', handleMessage);
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
   }, []);
 
   const handleSearch = async (overrideQuery) => {
-    const q = (overrideQuery !== undefined ? overrideQuery : searchInput).trim();
+    const q = (
+      overrideQuery !== undefined ? overrideQuery : searchInput
+    ).trim();
     if (!q) return;
 
     setLoading(true);
@@ -55,8 +64,8 @@ export default function Home() {
 
     try {
       const res = await fetch(`${API_BASE}/api/search`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ query: q }),
       });
       const data = await res.json();
@@ -69,7 +78,7 @@ export default function Home() {
       setResults(data);
     } catch (err) {
       setLoading(false);
-      alert('Search failed: ' + err.message);
+      alert("Search failed: " + err.message);
     }
   };
 
@@ -80,13 +89,15 @@ export default function Home() {
 
   const openExplainModal = async (offer) => {
     setSelectedOffer(offer);
-    setAiSummary("Generating compact AI explanation via TRUSTMATE MCP explain_score...");
+    setAiSummary(
+      "Generating compact AI explanation via TRUSTMATE MCP explain_score...",
+    );
     setExplainModalOpen(true);
 
     try {
       const res = await fetch(`${API_BASE}/api/explain`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ seller: offer.seller, url: offer.url }),
       });
       const data = await res.json();
@@ -126,32 +137,39 @@ export default function Home() {
   const executeOrderCreation = async (offer, riskConfirmed) => {
     try {
       const res = await fetch(`${API_BASE}/api/order/create`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           item_title: offer.title,
           seller_name: offer.seller,
           price_inr: offer.price_inr,
           trust_score: offer.trust ? offer.trust.score : null,
-          trust_label: offer.trust ? offer.trust.label : 'Unrated',
+          trust_label: offer.trust ? offer.trust.label : "Unrated",
           risk_confirmed: riskConfirmed,
         }),
       });
 
       const data = await res.json();
       if (data.error) {
-        alert('Order creation failed: ' + data.message);
+        alert("Order creation failed: " + data.message);
         return;
       }
 
       // Open PayPal approval popup
-      const width = 500, height = 650;
-      const left = (window.screen.width / 2) - (width / 2);
-      const top = (window.screen.height / 2) - (height / 2);
-      const approveUrl = data.approve_url?.startsWith('http') ? data.approve_url : `${API_BASE}${data.approve_url}`;
-      window.open(approveUrl, 'PayPalApproval', `width=${width},height=${height},top=${top},left=${left}`);
+      const width = 500,
+        height = 650;
+      const left = window.screen.width / 2 - width / 2;
+      const top = window.screen.height / 2 - height / 2;
+      const approveUrl = data.approve_url?.startsWith("http")
+        ? data.approve_url
+        : `${API_BASE}${data.approve_url}`;
+      window.open(
+        approveUrl,
+        "PayPalApproval",
+        `width=${width},height=${height},top=${top},left=${left}`,
+      );
     } catch (e) {
-      alert('Failed to initiate PayPal order: ' + e.message);
+      alert("Failed to initiate PayPal order: " + e.message);
     }
   };
 
@@ -186,14 +204,18 @@ export default function Home() {
       return (
         <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-xs">
           <i className="fa-solid fa-shield-check text-emerald-600"></i>
-          <span>{score} • {trust.label}</span>
+          <span>
+            {score} • {trust.label}
+          </span>
         </span>
       );
     } else if (trust.score >= 2.5) {
       return (
         <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300">
           <i className="fa-solid fa-triangle-exclamation text-amber-600"></i>
-          <span>{score} • {trust.label}</span>
+          <span>
+            {score} • {trust.label}
+          </span>
         </span>
       );
     } else {
@@ -211,28 +233,35 @@ export default function Home() {
       {/* Top Header Navigation */}
       <header className="glass sticky top-0 z-30 border-b border-slate-200 shadow-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-blue-500/20">
-              <i className="fa-solid fa-shield-halved text-lg"></i>
-            </div>
-            <div>
-              <span className="text-xl font-extrabold tracking-tight bg-gradient-to-r from-blue-700 via-indigo-700 to-purple-800 bg-clip-text text-transparent">
-                TRUSTMATE
-              </span>
-              <span className="hidden sm:inline-block ml-2 text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
-                PayPal AI Agent
-              </span>
+          <div className="flex items-center space-x-3 h-full">
+            <div className=" h-full flex items-center space-x-1  ">
+              <div className="image  flex items-center">
+                <img
+                  src="https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0e/PayPal_2024_%28Icon%29.svg/250px-PayPal_2024_%28Icon%29.svg.png?utm_source=en.wikipedia.org&utm_campaign=parser&utm_content=thumbnail"
+                  className="w-12 h-12 "
+                  alt=""
+                />
+              </div>
+              <div className="heading flex flex-col">
+                <span className="text-xl font-extrabold tracking-tight bg-gradient-to-r from-[#002990]  to-[#0089FA] bg-clip-text text-transparent flex items-center h-full ">
+                  TRUSTMATE
+                </span>
+                <span className="text-xs font-medium  h-[70%] flex items-end ">
+                  Services
+                </span>
+              </div>
             </div>
           </div>
 
           <div className="flex items-center space-x-3">
-            <div className="hidden sm:flex items-center space-x-2 text-xs px-3 py-1.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              <span>{mcpStatusText}</span>
+            <div className="hidden sm:flex items-center space-x-2 text-xs px-3 py-1.5 rounded-[5px] bg-slate-100 text-black-600 border border-slate-200">
+              <span className="hidden sm:inline-block ml-2 text-xs font-semibold px-2 py-0.5 rounded-[5px] bg-blue-50 text-black-700 border ">
+                PayPal AI Agent
+              </span>
             </div>
             <button
               onClick={toggleDashboard}
-              className="flex items-center space-x-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-white border border-slate-200 hover:bg-slate-50 transition shadow-xs"
+              className="flex items-center space-x-1.5 text-xs font-semibold px-3 py-1.5 rounded-[5px] bg-white border border-slate-200 hover:bg-slate-50 transition shadow-xs"
             >
               <i className="fa-solid fa-clock-rotate-left text-slate-500"></i>
               <span>Audit Dashboard</span>
@@ -244,16 +273,22 @@ export default function Home() {
       {/* Main Content Area */}
       <main className="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {/* Hero Section */}
-        <div className="text-center max-w-3xl mx-auto space-y-4 pt-4">
-          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-100 text-xs font-semibold text-indigo-700">
+        <div className="text-center max-w-4xl mx-auto space-y-4 pt-4">
+          <div className="inline-flex items-center space-x-2 px-3 py-1   text-sm font-semibold text-black-700">
             <i className="fa-solid fa-scale-balanced"></i>
-            <span>Trust comes first, price second</span>
+            <span className="font-medium">Trust comes first, price second</span>
           </div>
-          <h1 className="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">
-            Never get scammed by a <span >&quot;too good&quot;</span> deal again.
+
+          <h1 className="text-4xl sm:text-5xl font-extralight text-black-900 tracking-tight leading-tight">
+            Never get scammed by a{" "}
+            <span>
+              &quot;<span className="font-semibold">Too Good</span>&quot;
+            </span>{" "}
+            deal again.
           </h1>
-          <p className="text-base text-slate-600 max-w-2xl mx-auto">
-            TRUSTMATE scores seller authenticity via Places, domain history, and Safe Browsing. We gate untrusted sellers before you pay with PayPal.
+          <p className="text-sm text-black-600 max-w-2xl mx-auto">
+            TRUSTMATE scores seller authenticity via Places, domain history, and
+            Safe Browsing. We gate untrusted sellers before you pay with PayPal.
           </p>
 
           {/* Search Input Box */}
@@ -267,13 +302,15 @@ export default function Home() {
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
                 placeholder="e.g. laptop under 60000 for programming"
-                className="w-full pl-12 pr-32 py-4 rounded-2xl bg-white border-2 border-slate-200 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100 text-slate-800 text-base shadow-lg shadow-slate-200/50 transition"
-                onKeyDown={(e) => { if (e.key === 'Enter') handleSearch(); }}
+                className="w-full pl-12 pr-32 py-4 rounded-[5px] bg-white border-2 border-slate-200 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100 text-slate-800 text-base shadow-lg shadow-slate-200/50 transition"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleSearch();
+                }}
               />
               <div className="absolute inset-y-2 right-2 flex items-center">
                 <button
                   onClick={() => handleSearch()}
-                  className="h-full px-5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition shadow-md flex items-center space-x-2"
+                  className="h-full px-5 bg-gradient-to-r from-[#0089FA] to-[#002990]  hover:bg-white hover:bg-clip-text hover:text-transparent text-white font-semibold rounded-[5px] transition shadow-md flex items-center space-x-2"
                 >
                   <span>Inspect</span>
                   <i className="fa-solid fa-arrow-right text-xs"></i>
@@ -282,23 +319,29 @@ export default function Home() {
             </div>
 
             {/* Prompt Suggestion Chips */}
-            <div className="flex flex-wrap items-center justify-center gap-2 pt-3 text-xs text-slate-500">
+            <div className="flex flex-wrap items-center justify-center gap-2 pt-3 text-xs text-black-500">
               <span className="font-medium">Try:</span>
               <button
-                onClick={() => setQueryAndSearch('laptop under 60000 for programming')}
-                className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition"
+                onClick={() =>
+                  setQueryAndSearch("laptop under 60000 for programming")
+                }
+                className="px-2.5 py-1 rounded-[10px] bg-slate-100 hover:bg-slate-200 text-black-700 transition"
               >
                 💻 Laptop under ₹60,000 for programming
               </button>
               <button
-                onClick={() => setQueryAndSearch('noise cancelling headphones under 15000')}
-                className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition"
+                onClick={() =>
+                  setQueryAndSearch("noise cancelling headphones under 15000")
+                }
+                className="px-2.5 py-1 rounded-[10px] bg-slate-100 hover:bg-slate-200 text-black-700 transition"
               >
                 🎧 Headphones under ₹15,000
               </button>
               <button
-                onClick={() => setQueryAndSearch('mechanical keyboard under 4000')}
-                className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition"
+                onClick={() =>
+                  setQueryAndSearch("mechanical keyboard under 4000")
+                }
+                className="px-2.5 py-1 rounded-[10px] bg-slate-100 hover:bg-slate-200 text-black-700 transition"
               >
                 ⌨️ Keyboard under ₹4,000
               </button>
@@ -309,11 +352,23 @@ export default function Home() {
         {/* Loading Indicator */}
         {loading && (
           <div className="text-center py-12 space-y-4">
-            <div className="inline-block animate-spin rounded-full h-10 w-10 border-4 border-blue-600 border-t-transparent"></div>
+            <div
+              className="inline-block h-10 w-10 animate-spin rounded-full bg-[conic-gradient(from_0deg,transparent_25%,#0089FA_75%,#002990_100%)] [mask-image:radial-gradient(farthest-side,transparent_calc(100%-4px),#000_calc(100%-4px))]"
+              role="status"
+              aria-label="loading"
+            />
+
             <p className="text-sm font-semibold text-slate-700">
-              Agent executing <code className="text-xs bg-slate-100 px-2 py-1 rounded text-blue-700">rank_offers</code> tool on TRUSTMATE MCP...
+              Agent executing{" "}
+              <code className="text-xs bg-gradient-to-r from-[#0089FA] to-[#002990] bg-clip-text text-transparent px-2 py-1 rounded ">
+                rank_offers
+              </code>{" "}
+              tool on TRUSTMATE MCP...
             </p>
-            <p className="text-xs text-slate-400">Verifying domain age, HTTPS certificates, Places listings &amp; Safe Browsing</p>
+            <p className="text-xs text-black-400">
+              Verifying domain age, HTTPS certificates, Places listings &amp;
+              Safe Browsing
+            </p>
           </div>
         )}
 
@@ -322,10 +377,11 @@ export default function Home() {
           <div className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-200 text-sm">
               <div>
-                <h2 className="text-xl font-bold text-slate-900">
-                  Verified Offers for &quot;{results.query}&quot;
+                <h2 className="text-2xl font-medium text-slate-900">
+                  Verified Offers for &quot;
+                  <span className="font-bold">{results.query}</span>&quot;
                 </h2>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-black-500">
                   Ranked trust-first. Sellers below 2.5 are gated.
                 </p>
               </div>
@@ -335,19 +391,52 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Unverified Notes Banner */}
-            {results.unverified_notes && results.unverified_notes.length > 0 && (
-              <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-xs text-amber-900 space-y-1">
-                <div className="font-bold flex items-center space-x-1.5 text-amber-800">
-                  <i className="fa-solid fa-circle-info"></i>
-                  <span>Verification Notice (Honest Limits)</span>
+            {/* Verification Notice */}
+            {results.unverified_notes?.length > 0 && (
+              <section
+                role="status"
+                aria-label="Verification notice"
+                className="relative overflow-hidden rounded-xl border border-[#D5E5F7] bg-white shadow-[0_2px_8px_rgba(0,48,135,0.04)]"
+              >
+                {/* PayPal blue accent */}
+                <div className="absolute left-0 top-0 h-full w-[3px] bg-[#0070E0]" />
+
+                <div className="flex items-start gap-3 px-4 py-3.5 sm:px-5">
+                  {/* Icon */}
+
+                  {/* Content */}
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h3 className="text-[13px] font-semibold tracking-tight text-black">
+                        Verification Notice
+                      </h3>
+
+                      <span className="inline-flex items-center rounded-[5px] border border-[#D5E5F7] bg-[#F5F9FF] px-2 py-0.5 text-[10px] font-medium text-black">
+                        Evidence transparency
+                      </span>
+                    </div>
+
+                    <p className="mt-1 text-xs leading-[1.65] text-black-600">
+                      Some offers passed standard ranking eligibility but did
+                      not meet the evidence requirements for an automatic
+                      recommendation.
+                    </p>
+
+                    {/* Details */}
+                    <ul className="mt-2.5 space-y-2">
+                      {results.unverified_notes.map((note, i) => (
+                        <li
+                          key={i}
+                          className="flex items-start gap-2 text-xs leading-relaxed text-black-600"
+                        >
+                          <span className="mt-[5px] h-1.5 w-1.5 shrink-0 rounded-full bg-[#0070E0]" />
+                          <span>{note}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 </div>
-                <ul className="list-disc pl-5 space-y-0.5 text-amber-800/90">
-                  {results.unverified_notes.map((note, i) => (
-                    <li key={i}>{note}</li>
-                  ))}
-                </ul>
-              </div>
+              </section>
             )}
 
             {/* Offers Grid */}
@@ -356,261 +445,737 @@ export default function Home() {
                 <div className="w-12 h-12 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto text-xl">
                   <i className="fa-solid fa-box-open"></i>
                 </div>
-                <h3 className="text-base font-bold text-slate-800">No Eligible Offers Found</h3>
+                <h3 className="text-base font-bold text-slate-800">
+                  No Eligible Offers Found
+                </h3>
                 <p className="text-xs text-slate-500 max-w-md mx-auto">
-                  No verified offers matched your query within the specified budget. Try adjusting your search keywords or increasing your budget limit.
+                  No verified offers matched your query within the specified
+                  budget. Try adjusting your search keywords or increasing your
+                  budget limit.
                 </p>
               </div>
             ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {results.offers.map((offer, idx) => {
-                const priceUsd = (offer.price_inr * 0.012).toFixed(2);
-                return (
-                  <div
-                    key={offer.id || idx}
-                    className={`bg-white rounded-3xl border ${
-                      offer.recommended
-                        ? 'border-2 border-blue-500 shadow-lg shadow-blue-500/5 ring-4 ring-blue-50'
-                        : 'border-slate-200 shadow-sm'
-                    } p-6 flex flex-col justify-between transition hover:shadow-md relative overflow-hidden`}
-                  >
-                    <div>
-                      {offer.recommended && (
-                        <div className="bg-blue-600 text-white text-[10px] uppercase tracking-wider font-extrabold px-3 py-1 rounded-full inline-flex items-center space-x-1 mb-3 self-start shadow-xs">
-                          <i className="fa-solid fa-star text-amber-300"></i>
-                          <span>Recommended Pick (Trust-First)</span>
-                        </div>
-                      )}
+              <div className="divide-y divide-slate-200 border-y border-slate-200 bg-white">
+                {results.offers.map((offer, idx) => {
+                  const priceUsd = (offer.price_inr * 0.012).toFixed(2);
 
-                      <div className="flex items-start justify-between gap-3">
-                        <div>
-                          <h3 className="text-base font-bold text-slate-900 leading-snug">{offer.title}</h3>
-                          <p className="text-xs text-slate-500 mt-0.5">
-                            Sold by <span className="font-semibold text-slate-700">{offer.seller}</span>
+                  return (
+                    <article
+                      key={offer.id || idx}
+                      className={`relative py-6 sm:py-7 pl-4 sm:pl-6 pr-2 sm:pr-4 transition-colors hover:bg-slate-50/60 ${
+                        offer.recommended
+                          ? "border-l-[3px] border-l-[#0070E0]"
+                          : "border-l-[3px] border-l-transparent"
+                      }`}
+                    >
+                      {/* Product heading */}
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                        <div className="min-w-0 flex-1">
+                          {offer.recommended && (
+                            <div className="flex items-center gap-1.5 mb-2">
+                              <i className="fa-solid fa-circle-check text-[#0070E0] text-xs" />
+                              <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#0070E0]">
+                                Recommended pick · Trust-first
+                              </span>
+                            </div>
+                          )}
+
+                          <h3 className="text-[15px] sm:text-base font-medium text-[#071B36] leading-snug">
+                            {offer.title}
+                          </h3>
+
+                          <p className="mt-1 text-xs font-light text-black-500">
+                            Sold by{" "}
+                            <span className="font-bold text-black-700">
+                              {offer.seller}
+                            </span>
                           </p>
                         </div>
-                        <div className="cursor-pointer" onClick={() => openExplainModal(offer)}>
+
+                        {/* Trust score */}
+                        <button
+                          type="button"
+                          onClick={() => openExplainModal(offer)}
+                          className="self-start shrink-0 hover:opacity-75 transition"
+                          aria-label="Inspect trust score"
+                        >
                           {renderBadge(offer.trust)}
-                        </div>
+                        </button>
                       </div>
 
+                      {/* Trade-off explanation - no alert box */}
                       {offer.tradeoff_note && (
-                        <div className="mt-3 p-3 bg-amber-50/80 border border-amber-200 rounded-xl flex items-start space-x-2 text-xs text-amber-900">
-                          <i className="fa-solid fa-triangle-exclamation text-amber-600 mt-0.5 flex-shrink-0"></i>
-                          <span><strong>Trade-off Alert:</strong> {offer.tradeoff_note}</span>
+                        <div className="mt-4 flex items-start gap-2.5 max-w-4xl">
+                          <i className="fa-solid fa-circle-info text-[#B7791F] text-xs mt-[3px] shrink-0" />
+
+                          <div className="min-w-0">
+                            <p className="text-xs leading-[1.7] text-black-600">
+                              <span className="font-semibold text-[#8A5A16]">
+                                Recommendation restricted:{" "}
+                              </span>
+                              {offer.tradeoff_note}
+                            </p>
+                          </div>
                         </div>
                       )}
 
-                      <div className="mt-4 pt-4 border-t border-slate-100 flex items-baseline justify-between">
+                      {/* Price and inspection */}
+                      <div className="mt-5 pt-4 border-t border-slate-100 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
                         <div>
-                          <div className="text-2xl font-extrabold text-slate-900">
-                            ₹{Math.round(offer.price_inr).toLocaleString('en-IN')}
+                          <p className="text-[10px] font-bold uppercase tracking-wider text-black-400 mb-1">
+                            Offer price
+                          </p>
+
+                          <div className="text-[27px] sm:text-3xl font-bold tracking-tight text-[#071B36]">
+                            ₹
+                            {Math.round(offer.price_inr).toLocaleString(
+                              "en-IN",
+                            )}
                           </div>
-                          <div className="text-xs text-slate-400">
-                            ≈ ${(offer.price_inr * 0.012).toFixed(2)} USD (PayPal Sandbox)
-                          </div>
+
+                          <p className="mt-0.5 text-xs text-black-400">
+                            ≈ ${priceUsd} USD
+                            <span className="mx-1">·</span>
+                            PayPal Sandbox
+                          </p>
                         </div>
+
                         <button
+                          type="button"
                           onClick={() => openExplainModal(offer)}
-                          className="text-xs font-semibold text-blue-600 hover:text-blue-800 flex items-center space-x-1"
+                          className="group inline-flex items-center gap-2 self-start sm:self-auto text-xs font-semibold text-black hover:text-[#003087] transition-colors"
                         >
-                          <span>Inspect signals</span>
-                          <i className="fa-solid fa-chevron-right text-[10px]"></i>
+                          Inspect evidence & signals
+                          <i className="fa-solid fa-arrow-right text-[10px] transition-transform group-hover:translate-x-1" />
                         </button>
                       </div>
-                    </div>
 
-                    <div className="mt-5 pt-3">
-                      <button
-                        onClick={() => startCheckout(offer)}
-                        className={`w-full ${
-                          offer.recommended
-                            ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                            : 'bg-slate-900 hover:bg-black text-white'
-                        } py-3 px-4 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-2 shadow-xs`}
-                      >
-                        <i className="fa-brands fa-paypal text-sm text-[#0070BA]"></i>
-                        <span>Approve &amp; Pay with PayPal</span>
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+                      {/* Checkout */}
+                      <div className="mt-5 flex justify-end">
+                        <button
+                          type="button"
+                          onClick={() => startCheckout(offer)}
+                          className="w-full sm:w-auto min-w-[230px] bg-[#003087] hover:bg-[#0047AB] active:bg-[#00246A] text-white py-3 px-6 rounded-lg text-xs font-semibold transition-colors duration-200 flex items-center justify-center gap-2"
+                        >
+                          <i className="fa-brands fa-paypal text-base text-[#00A8E0]" />
+                          <span className="font-medium">
+                            Approve & Pay with PayPal
+                          </span>
+                          <i className="fa-solid fa-arrow-right text-[10px] opacity-70" />
+                        </button>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
             )}
           </div>
         )}
 
         {/* Dashboard Section */}
+
         {dashboardOpen && (
-          <div className="space-y-6 pt-4">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-200">
+          <div className="space-y-7 pt-4">
+            {/* Dashboard Header */}
+            <div
+              className="flex flex-col sm:flex-row sm:items-center
+      justify-between gap-4 pb-5 border-b border-slate-200"
+            >
               <div>
-                <h2 className="text-2xl font-bold text-slate-900">Purchase &amp; Trust Audit Dashboard</h2>
-                <p className="text-xs text-slate-500">Record of verified searches and authorized PayPal Sandbox transactions.</p>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="w-1.5 h-6 bg-[#0070E0] rounded-full"></span>
+                  <h2 className="text-2xl font-bold tracking-tight text-[#071B36]">
+                    Purchase &amp; Trust Audit
+                  </h2>
+                </div>
+
+                <p className="text-xs text-slate-500 ml-3.5">
+                  Transaction history, seller verification and search activity.
+                </p>
               </div>
+
               <button
                 onClick={toggleDashboard}
-                className="text-xs font-semibold text-blue-600 hover:text-blue-800"
+                className="inline-flex items-center gap-2 text-xs
+        font-semibold text-[#0070E0] hover:text-[#003087]
+        transition-colors"
               >
-                ← Back to Search
+                <i className="fa-solid fa-arrow-left text-[10px]"></i>
+                Back to Search
               </button>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Captured PayPal Orders */}
-              <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-4">
+            {/* Overview Metrics */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {/* Total Orders */}
+              <div
+                className="bg-white border border-slate-200
+        rounded-xl px-5 py-4"
+              >
                 <div className="flex items-center justify-between">
-                  <h3 className="font-bold text-slate-800 flex items-center space-x-2">
-                    <i className="fa-brands fa-paypal text-blue-600"></i>
-                    <span>Captured PayPal Orders</span>
-                  </h3>
-                  <span className="text-xs bg-blue-50 text-blue-700 font-semibold px-2 py-0.5 rounded-full">
-                    {orders.length} orders
+                  <span className="text-xs font-medium text-slate-500">
+                    Total PayPal Orders
                   </span>
+                  <i className="fa-brands fa-paypal text-[#0070E0] text-lg"></i>
                 </div>
-                <div className="space-y-3 max-h-96 overflow-y-auto pr-1">
-                  {orders.length === 0 ? (
-                    <p className="text-xs text-slate-400 py-4 text-center">No transactions captured yet.</p>
-                  ) : (
-                    orders.map((o) => (
-                      <div key={o.id} className="p-3 rounded-xl border border-slate-100 bg-slate-50 text-xs space-y-1">
-                        <div className="flex items-center justify-between font-bold text-slate-800">
-                          <span className="truncate max-w-[200px]">{o.item_title}</span>
-                          <div className="flex items-center space-x-1.5">
-                            <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${o.status === 'COMPLETED' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}`}>
-                              {o.status === 'COMPLETED' ? 'Captured' : 'Created'}
-                            </span>
-                            <span className="text-emerald-600">${o.amount_usd.toFixed(2)} USD</span>
-                          </div>
-                        </div>
-                        <div className="flex items-center justify-between text-slate-500 text-[11px]">
-                          <span>
-                            {o.seller_name} (Score: {o.trust_score !== null ? o.trust_score.toFixed(1) : 'Unrated'})
-                          </span>
-                          <span className="font-mono text-slate-400">
-                            {o.order_id.substring(0, 15)}...
-                          </span>
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
+
+                <p className="text-2xl font-bold text-[#071B36] mt-3">
+                  {orders.length}
+                </p>
+
+                
               </div>
 
-              {/* Recent Searches */}
-              <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-4">
+              {/* Captured Orders */}
+              <div
+                className="bg-white border border-slate-200
+        rounded-xl px-5 py-4"
+              >
                 <div className="flex items-center justify-between">
-                  <h3 className="font-bold text-slate-800 flex items-center space-x-2">
-                    <i className="fa-solid fa-list-check text-indigo-600"></i>
-                    <span>Recent Trust Checks</span>
-                  </h3>
+                  <span className="text-xs font-medium text-slate-500">
+                    Completed Transactions
+                  </span>
+                  <i
+                    className="fa-solid fa-circle-check
+            text-emerald-600 text-base"
+                  ></i>
                 </div>
-                <div className="space-y-3 max-h-96 overflow-y-auto pr-1">
-                  {recentSearches.length === 0 ? (
-                    <p className="text-xs text-slate-400 py-4 text-center">No recent searches recorded.</p>
-                  ) : (
-                    recentSearches.map((s) => (
-                      <div key={s.id} className="p-3 rounded-xl border border-slate-100 bg-slate-50 text-xs space-y-1">
-                        <div className="flex items-center justify-between font-semibold text-slate-800">
-                          <span>&quot;{s.query}&quot;</span>
-                          <span className="text-slate-500">Max ₹{s.budget_inr.toLocaleString('en-IN')}</span>
-                        </div>
-                        <div className="text-[10px] text-slate-400">{s.created_at}</div>
+
+                <p className="text-2xl font-bold text-[#071B36] mt-3">
+                  {orders.filter((o) => o.status === "COMPLETED").length}
+                </p>
+
+                
+              </div>
+
+              {/* Trust Checks */}
+              <div
+                className="bg-white border border-slate-200
+        rounded-xl px-5 py-4"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-medium text-slate-500">
+                    Total Trust Checks
+                  </span>
+                  <i
+                    className="fa-solid fa-shield-halved
+            text-[#0070E0] text-base"
+                  ></i>
+                </div>
+
+                <p className="text-2xl font-bold text-[#071B36] mt-3">
+                  {recentSearches.length}
+                </p>
+
+                
+              </div>
+            </div>
+
+            {/* Dashboard Data */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+              {/* PayPal Transactions */}
+              <section
+                className="bg-white border border-slate-200
+        rounded-xl overflow-hidden"
+              >
+                <div
+                  className="px-5 py-4 border-b border-slate-100
+          flex items-center justify-between gap-3"
+                >
+                  <div className="flex items-center gap-3">
+                    
+
+                    <div>
+                      <h3 className="text-sm font-bold text-[#071B36]">
+                        PayPal Transactions
+                      </h3>
+                      
+                    </div>
+                  </div>
+
+                  <span
+                    className="text-[11px] font-semibold
+            text-[#003087] bg-[#EAF4FF] px-2.5 py-1 rounded-md"
+                  >
+                    {orders.length} Orders
+                  </span>
+                </div>
+
+                <div className="max-h-[460px] overflow-y-auto">
+                  {orders.length === 0 ? (
+                    <div
+                      className="min-h-[280px] flex flex-col
+              items-center justify-center text-center px-6"
+                    >
+                      <div
+                        className="w-12 h-12 rounded-full
+                bg-slate-50 flex items-center justify-center"
+                      >
+                        <i
+                          className="fa-solid fa-receipt
+                  text-slate-300 text-xl"
+                        ></i>
                       </div>
-                    ))
+
+                      <h4
+                        className="text-sm font-semibold
+                text-slate-700 mt-4"
+                      >
+                        No transactions yet
+                      </h4>
+
+                      
+                    </div>
+                  ) : (
+                    <div className="divide-y divide-slate-100">
+                      {orders.map((o) => (
+                        <div
+                          key={o.id}
+                          className="px-5 py-4 hover:bg-slate-50/70
+                  transition-colors"
+                        >
+                          {/* Product and amount */}
+                          <div
+                            className="flex items-start
+                    justify-between gap-3"
+                          >
+                            <div className="min-w-0">
+                              <h4
+                                className="text-[13px] font-semibold
+                        text-[#071B36] truncate"
+                              >
+                                {o.item_title}
+                              </h4>
+
+                              <p className="text-xs text-slate-500 mt-1">
+                                {o.seller_name}
+                              </p>
+                            </div>
+
+                            <p
+                              className="text-sm font-bold
+                      text-[#071B36] whitespace-nowrap"
+                            >
+                              ${Number(o.amount_usd || 0).toFixed(2)}
+                            </p>
+                          </div>
+
+                          {/* Transaction details */}
+                          <div
+                            className="flex flex-wrap items-center
+                    justify-between gap-2 mt-3"
+                          >
+                            <div className="flex items-center gap-2">
+                              <span
+                                className={`inline-flex items-center
+                        gap-1.5 text-[10px] font-semibold
+                        px-2 py-1 rounded-md ${
+                          o.status === "COMPLETED"
+                            ? "bg-emerald-50 text-emerald-700"
+                            : "bg-amber-50 text-amber-700"
+                        }`}
+                              >
+                                <span
+                                  className={`w-1.5 h-1.5 rounded-full ${
+                                    o.status === "COMPLETED"
+                                      ? "bg-emerald-500"
+                                      : "bg-amber-500"
+                                  }`}
+                                ></span>
+
+                                {o.status === "COMPLETED"
+                                  ? "Captured"
+                                  : o.status === "CREATED"
+                                    ? "Created"
+                                    : o.status}
+                              </span>
+
+                              <span
+                                className="text-[10px]
+                        text-slate-400"
+                              >
+                                Trust:{" "}
+                                {o.trust_score !== null &&
+                                o.trust_score !== undefined
+                                  ? o.trust_score.toFixed(1)
+                                  : "Unrated"}
+                              </span>
+                            </div>
+
+                            <span
+                              title={o.order_id}
+                              className="text-[10px] font-mono
+                      text-slate-400 truncate max-w-[145px]"
+                            >
+                              {o.order_id}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   )}
                 </div>
-              </div>
+              </section>
+
+              {/* Recent Trust Checks */}
+              <section
+                className="bg-white border border-slate-200
+        rounded-xl overflow-hidden"
+              >
+                <div
+                  className="px-5 py-4 border-b border-slate-100
+          flex items-center justify-between gap-3"
+                >
+                  <div className="flex items-center gap-3">
+                    
+
+                    <div>
+                      <h3 className="text-sm font-bold text-[#071B36]">
+                        Recent Trust Checks
+                      </h3>
+                      
+                    </div>
+                  </div>
+
+                  <span
+                    className="text-[11px] font-semibold
+            text-[#003087] bg-[#EAF4FF] px-2.5 py-1 rounded-md"
+                  >
+                    {recentSearches.length} Searches
+                  </span>
+                </div>
+
+                <div className="max-h-[460px] overflow-y-auto">
+                  {recentSearches.length === 0 ? (
+                    <div
+                      className="min-h-[280px] flex flex-col
+              items-center justify-center text-center px-6"
+                    >
+                      <div
+                        className="w-12 h-12 rounded-full
+                bg-slate-50 flex items-center justify-center"
+                      >
+                        <i
+                          className="fa-solid fa-magnifying-glass
+                  text-slate-300 text-lg"
+                        ></i>
+                      </div>
+
+                      <h4
+                        className="text-sm font-semibold
+                text-slate-700 mt-4"
+                      >
+                        No trust checks recorded
+                      </h4>
+
+                      
+                    </div>
+                  ) : (
+                    <div className="divide-y divide-slate-100">
+                      {recentSearches.map((s) => (
+                        <div
+                          key={s.id}
+                          className="px-5 py-4 hover:bg-slate-50/70
+                  transition-colors"
+                        >
+                          <div
+                            className="flex items-start
+                    justify-between gap-3"
+                          >
+                            <div className="min-w-0 flex-1">
+                              <h4
+                                className="text-[13px] font-semibold
+                        text-[#071B36] break-words"
+                              >
+                                {s.query}
+                              </h4>
+
+                              <p className="text-[11px] text-slate-400 mt-1">
+                                <i className="fa-regular fa-clock mr-1"></i>
+                                {s.created_at
+                                  ? new Date(s.created_at).toLocaleString(
+                                      "en-IN",
+                                      {
+                                        day: "2-digit",
+                                        month: "short",
+                                        year: "numeric",
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                      },
+                                    )
+                                  : "Date unavailable"}
+                              </p>
+                            </div>
+
+                            <div className="shrink-0 text-right">
+                              <p
+                                className="text-[10px] uppercase
+                        tracking-wide text-slate-400"
+                              >
+                                Budget
+                              </p>
+
+                              <p
+                                className="text-xs font-bold
+                        text-[#003087] mt-1 whitespace-nowrap"
+                              >
+                                ₹
+                                {Number(s.budget_inr || 0).toLocaleString(
+                                  "en-IN",
+                                )}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </section>
             </div>
           </div>
         )}
       </main>
 
-      {/* Tap-To-Explain Factors Slide-Over Modal */}
+      {/* Tap-To-Explain Factors Modal */}
       {explainModalOpen && selectedOffer && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
-          <div className="bg-white rounded-3xl max-w-xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-100 flex flex-col">
-            <div className="p-6 border-b border-slate-100 flex items-center justify-between">
-              <div>
-                <h3 className="text-lg font-bold text-slate-900 flex items-center space-x-2">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center
+    p-3 sm:p-5 bg-[#071B36]/60 backdrop-blur-sm"
+          onClick={closeExplainModal}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white rounded-[5px] max-w-2xl w-full
+      max-h-[90vh] flex flex-col overflow-hidden
+      shadow-2xl border border-slate-200"
+          >
+            {/* Header */}
+            <div
+              className="px-5 sm:px-7 py-5 flex items-center
+        justify-between border-b border-slate-100 shrink-0"
+            >
+              <div className="min-w-0">
+                <h3
+                  className="text-lg font-bold text-[#071B36]
+            flex items-center flex-wrap gap-2"
+                >
                   <span>{selectedOffer.seller}</span>
-                  <span>{renderBadge(selectedOffer.trust)}</span>
+                  {renderBadge(selectedOffer.trust)}
                 </h3>
-                <p className="text-xs text-slate-500">Tap-to-Explain Signal Breakdown</p>
+
+                <p className="text-xs text-black-400 mt-1">
+                  Tap-to-Explain Signal Breakdown
+                </p>
               </div>
+
               <button
                 onClick={closeExplainModal}
-                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500"
+                className="w-9 h-9 shrink-0 rounded-full
+           hover:bg-[#0089FA] hover:text-[#002990]
+          text-slate-500 flex items-center justify-center transition"
               >
                 <i className="fa-solid fa-xmark"></i>
               </button>
             </div>
 
-            <div className="p-6 space-y-5">
-              {/* AI Summary Card */}
-              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-2xl p-4 space-y-2">
-                <div className="flex items-center space-x-2 text-xs font-bold text-blue-900">
-                  <i className="fa-solid fa-sparkles text-blue-600"></i>
-                  <span>AI Authenticity Summary (explain_score)</span>
-                </div>
-                <p className="text-xs text-blue-950/80 leading-relaxed">{aiSummary}</p>
-              </div>
+            {/* Content */}
+            <div
+              className="flex-1 min-h-0 overflow-y-auto
+        px-5 sm:px-7 py-6 space-y-7"
+            >
+              {/* AI Summary */}
 
-              {/* Factors Checklist */}
-              <div className="space-y-3">
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Verified Signals</p>
-                <div className="space-y-2.5">
-                  {(selectedOffer.trust?.factors || []).length === 0 ? (
-                    <p className="text-xs text-slate-400 py-2">No individual factor signals recorded.</p>
-                  ) : (
-                    (selectedOffer.trust?.factors || []).map((f, i) => {
-                    let icon = 'fa-check text-emerald-500 bg-emerald-50';
-                    let border = 'border-slate-100';
-                    if (f.status === 'bad') {
-                      icon = 'fa-xmark text-rose-500 bg-rose-50';
-                      border = 'border-rose-100 bg-rose-50/20';
-                    } else if (f.status === 'warn') {
-                      icon = 'fa-exclamation text-amber-500 bg-amber-50';
-                      border = 'border-amber-100 bg-amber-50/20';
-                    } else if (f.status === 'unverified') {
-                      icon = 'fa-question text-slate-400 bg-slate-50';
-                    }
+              {/* AI Summary */}
+              <section>
+                <div className="mb-4">
+                  <h4 className="text-lg font-semibold text-[#071B36]">
+                    AI Authenticity Summary
+                  </h4>
+                  <p className="text-[11px] text-slate-400">Explain Score</p>
+                </div>
+
+                <div
+                  className="bg-[#F7FAFF] border border-[#E2EBF8]
+    rounded-[5px] px-4 sm:px-5 py-5"
+                >
+                  {(() => {
+                    const text = String(aiSummary || "").trim();
+
+                    // Detect generic uppercase headings, regardless of their names.
+                    const headingPattern =
+                      /(?:^|(?<=[.!?]\s))([A-Z][A-Z0-9]*(?:[\s-]+[A-Z0-9]+){1,7})(?=\s|:)/g;
+
+                    const formattedText = text.replace(
+                      headingPattern,
+                      "\n$1\n",
+                    );
+
+                    const lines = formattedText
+                      .split(/\n+/)
+                      .map((line) => line.trim())
+                      .filter(Boolean);
 
                     return (
-                      <div key={i} className={`p-3 rounded-xl border ${border} flex items-start space-x-3 text-xs`}>
-                        <div className={`w-6 h-6 rounded-full ${icon} flex items-center justify-center flex-shrink-0 text-xs mt-0.5`}>
-                          <i className={`fa-solid ${icon.split(' ')[0]}`}></i>
-                        </div>
-                        <div className="flex-grow">
-                          <div className="font-bold text-slate-800 flex items-center justify-between">
-                            <span>{f.name}</span>
-                            <span
-                              className={`uppercase text-[9px] font-extrabold px-1.5 py-0.5 rounded ${
-                                f.status === 'ok'
-                                  ? 'bg-emerald-100 text-emerald-800'
-                                  : f.status === 'bad'
-                                  ? 'bg-rose-100 text-rose-800'
-                                  : 'bg-slate-100 text-slate-600'
-                              }`}
+                      <div className="space-y-3">
+                        {lines.map((line, index) => {
+                          const isHeading =
+                            /^[A-Z][A-Z0-9]*(?:[\s-]+[A-Z0-9]+){1,7}:?$/.test(
+                              line,
+                            );
+
+                          if (isHeading) {
+                            return (
+                              <h5
+                                key={index}
+                                className="text-[15px] font-bold uppercase
+                  tracking-wide text-black pt-2 first:pt-0"
+                              >
+                                {line.replace(/:$/, "")}
+                              </h5>
+                            );
+                          }
+
+                          const isBullet = /^[-•*]\s*/.test(line);
+                          const content = line.replace(/^[-•*]\s*/, "");
+
+                          // Bold any short descriptive label before a colon.
+                          const colonIndex = content.indexOf(":");
+                          const hasLabel = colonIndex > 0 && colonIndex <= 45;
+
+                          return (
+                            <div
+                              key={index}
+                              className={`text-[13px] leading-[1.8]
+                text-black-600 ${isBullet ? "flex gap-2" : ""}`}
                             >
-                              {f.status}
-                            </span>
-                          </div>
-                          <div className="text-slate-600 mt-0.5 text-[11px]">{f.detail}</div>
-                        </div>
+                              {isBullet && (
+                                <span className="text-[#0070E0] shrink-0">
+                                  •
+                                </span>
+                              )}
+
+                              <p>
+                                {hasLabel ? (
+                                  <>
+                                    <strong className="font-semibold text-black">
+                                      {content.slice(0, colonIndex + 1)}
+                                    </strong>
+                                    {content.slice(colonIndex + 1)}
+                                  </>
+                                ) : (
+                                  content
+                                )}
+                              </p>
+                            </div>
+                          );
+                        })}
                       </div>
                     );
-                  })
-                )}
+                  })()}
                 </div>
-              </div>
+              </section>
+
+              {/* Factors */}
+              <section>
+                <div className="flex items-center justify-between mb-3">
+                  <div>
+                    <h4 className="text-xl font-medium text-[#071B36]">
+                      Verified Signals
+                    </h4>
+                    <p className="text-[11px] text-black-400 mt-0.5">
+                      Evidence collected during verification
+                    </p>
+                  </div>
+
+                  <span className="text-[11px] text-black-400 font-medium">
+                    {selectedOffer.trust?.factors?.length || 0} signals
+                  </span>
+                </div>
+
+                <div
+                  className="divide-y divide-slate-100 border-y
+            border-slate-100"
+                >
+                  {(selectedOffer.trust?.factors || []).length === 0 ? (
+                    <p className="text-xs text-black-400 py-5">
+                      No individual factor signals recorded.
+                    </p>
+                  ) : (
+                    (selectedOffer.trust?.factors || []).map((f, i) => {
+                      let icon = "fa-question";
+                      let iconColor = "text-slate-400";
+                      let iconBg = "bg-slate-100";
+                      let statusColor = "text-slate-500";
+                      let statusLabel = "UNVERIFIED";
+
+                      if (f.status === "ok") {
+                        icon = "fa-check";
+                        iconColor = "text-emerald-600";
+                        iconBg = "bg-emerald-50";
+                        statusColor = "text-emerald-700";
+                        statusLabel = "VERIFIED";
+                      } else if (f.status === "bad") {
+                        icon = "fa-xmark";
+                        iconColor = "text-rose-600";
+                        iconBg = "bg-rose-50";
+                        statusColor = "text-rose-700";
+                        statusLabel = "CONCERN";
+                      } else if (f.status === "warn") {
+                        icon = "fa-exclamation";
+                        iconColor = "text-amber-600";
+                        iconBg = "bg-amber-50";
+                        statusColor = "text-amber-700";
+                        statusLabel = "LIMITED";
+                      }
+
+                      return (
+                        <div key={i} className="py-4 flex items-start gap-3">
+                          <div className="flex-1 min-w-0">
+                            <div
+                              className="flex items-center
+                        justify-between gap-2"
+                            >
+                              <h5
+                                className="text-[15px] font-medium
+                          text-[#071B36]"
+                              >
+                                {f.name}
+                              </h5>
+
+                              <span
+                                className={`text-[10px] font-bold
+                          tracking-wide ${statusColor}`}
+                              >
+                                {statusLabel}
+                              </span>
+                            </div>
+
+                            <p
+                              className="text-xs text-black-500
+                        leading-relaxed mt-1"
+                            >
+                              {f.detail}
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+              </section>
             </div>
 
-            <div className="p-4 bg-slate-50 border-t border-slate-100 flex justify-end">
+            {/* Footer */}
+            <div
+              className="px-5 sm:px-7 py-4 border-t
+        border-slate-100 bg-white   flex justify-end shrink-0"
+            >
               <button
                 onClick={closeExplainModal}
-                className="px-5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 font-semibold text-xs rounded-xl transition"
+                className="px-6 py-2.5 bg-gradient-to-r from-[#002990] to-[#0089FA]
+           hover:bg-clip-text hover:text-transparent text-white hover:border-black-700 border border-2
+          text-xs font-semibold rounded-[5px] transition"
               >
                 Close
               </button>
@@ -628,12 +1193,14 @@ export default function Home() {
             </div>
 
             <div className="space-y-2">
-              <h3 className="text-lg font-bold text-slate-900">High Risk Warning</h3>
+              <h3 className="text-lg font-bold text-slate-900">
+                High Risk Warning
+              </h3>
               <p className="text-xs text-slate-600">
-                This seller scored{' '}
+                This seller scored{" "}
                 <span className="font-bold text-rose-600">
-                  {pendingRiskOffer.trust?.score?.toFixed(1) || '1.9'} (Risky)
-                </span>{' '}
+                  {pendingRiskOffer.trust?.score?.toFixed(1) || "1.9"} (Risky)
+                </span>{" "}
                 and has multiple authenticity red flags.
               </p>
             </div>
@@ -641,7 +1208,8 @@ export default function Home() {
             <div className="bg-rose-50 border border-rose-100 rounded-xl p-3 text-left text-xs text-rose-900 space-y-1">
               <p className="font-semibold">Why this was flagged:</p>
               <p className="text-rose-800">
-                {pendingRiskOffer.tradeoff_note || 'Newly registered domain and lack of physical business verification.'}
+                {pendingRiskOffer.tradeoff_note ||
+                  "Newly registered domain and lack of physical business verification."}
               </p>
             </div>
 
@@ -665,4 +1233,3 @@ export default function Home() {
     </>
   );
 }
-
