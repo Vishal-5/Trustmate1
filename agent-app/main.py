@@ -50,6 +50,11 @@ class CaptureOrderRequest(BaseModel):
 
 # --- API ROUTES ---
 
+
+@app.get("/health")
+async def health_check():
+    return {"status": "ok"}
+
 @app.get("/api/status")
 async def get_system_status():
     return {
