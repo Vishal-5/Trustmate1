@@ -2,7 +2,7 @@
 TRUSTMATE - Customer-Facing Web Application & Agent Server (Person B)
 Serves the user interface, manages the agent loop, and interfaces with PayPal and TRUSTMATE MCP servers.
 """
-
+from fastapi import Response
 import os
 from typing import Optional, Dict, Any, List
 from fastapi import FastAPI, Request, HTTPException
