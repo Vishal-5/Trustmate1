@@ -250,7 +250,7 @@ export default function Home() {
             <span>Trust comes first, price second</span>
           </div>
           <h1 className="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">
-            Never get scammed by a <span className="underline decoration-blue-500 decoration-wavy decoration-2">&quot;too good&quot;</span> deal again.
+            Never get scammed by a <span >&quot;too good&quot;</span> deal again.
           </h1>
           <p className="text-base text-slate-600 max-w-2xl mx-auto">
             TRUSTMATE scores seller authenticity via Places, domain history, and Safe Browsing. We gate untrusted sellers before you pay with PayPal.
