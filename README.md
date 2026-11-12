@@ -2,7 +2,6 @@
 
 > **Autonomous Seller Trust & Anti-Fraud Microservice for PayPal**  
 > *PayPal AI Hackathon: Build What's Next with PayPal and AI*  
-> **Repository:** [https://github.com/Vishal-5/Trustmate1.git](https://github.com/Vishal-5/Trustmate1.git)
 
 ---
 
@@ -152,45 +151,8 @@ cd ../..
 
 ---
 
-## 7. Environment Variables
 
-### Agent App (`agent-app/.env`)
-Create a file named `.env` inside the `agent-app/` folder based on `.env.example`:
-
-```env
-# URL of the TRUSTMATE MCP Server
-# For local testing, use: http://127.0.0.1:8001
-# For cloud deployment, use your live Render URL: https://trustmate-mcp.onrender.com/mcp
-TRUSTMATE_MCP_URL=http://127.0.0.1:8001/mcp
-TRUST_MCP_URL=http://127.0.0.1:8001
-TRUSTMATE_MCP_BEARER_TOKEN=cfKGqt5yomOoY8aesTut1ALbNHXhk3rY1rc5elGVW2VP_wPVV3g354OTA_c0dwlu
-
-# PayPal Sandbox Credentials
-# Leave blank to automatically use the built-in Sandbox Simulator
-PAYPAL_CLIENT_ID=
-PAYPAL_CLIENT_SECRET=
-PAYPAL_MODE=simulator
-
-# Server Configuration
-PORT=8000
-HOST=127.0.0.1
-```
-
-### Trust-MCP Server (`Trust-mcp/.env`)
-Create a file named `.env` inside the `Trust-mcp/` folder:
-
-```env
-APP_NAME=TRUSTMATE-MCP
-APP_ENV=development
-MOCK=true
-PORT=8001
-MCP_ALLOWED_HOSTS=localhost:8001,127.0.0.1:8001,localhost,127.0.0.1
-MCP_BEARER_TOKEN=cfKGqt5yomOoY8aesTut1ALbNHXhk3rY1rc5elGVW2VP_wPVV3g354OTA_c0dwlu
-```
-
----
-
-## 8. Running the Project
+## 7. Running the Project
 
 ### Option A: One-Command Master Launcher (Recommended)
 You can start all three tiers (Trust-MCP server, FastAPI backend, and Next.js frontend) with one command from the project root:
@@ -226,7 +188,7 @@ The services will start automatically at:
 
 ---
 
-## 9. Usage Walkthrough
+## 8. Usage Walkthrough
 
 1. **Open the Application:** Navigate to `http://localhost:3000` in your browser.
 2. **Search for an Item:** Type a query or click one of the quick suggestions:
@@ -243,7 +205,7 @@ The services will start automatically at:
 
 ---
 
-## 10. API Reference
+## 9. API Reference
 
 ### Customer Gateway Endpoints (`agent-app/main.py`)
 
@@ -267,7 +229,7 @@ The services will start automatically at:
 
 ---
 
-## 11. Testing
+## 10. Testing
 
 Run the automated integration test suite to verify the end-to-end user journey, PayPal order gating, and MCP tool communication:
 
@@ -284,7 +246,7 @@ This verifies:
 
 ---
 
-## 12. Honest Limitations & Planned Improvements
+## 11. Honest Limitations & Planned Improvements
 
 - **Locale Bridging:** Channel3 currently specializes in US/USD product discovery; Indian INR searches bridge seamlessly to US catalog equivalents at a fixed demonstration exchange rate ($1\text{ USD} \approx ₹83.33$). A live currency feed is planned.
 - **Pre-Trained Seller Intelligence:** Sellers without historical domain or business records receive an `"Unrated"` score rather than an arbitrary penalty, ensuring fair treatment of new legitimate merchants.
@@ -292,6 +254,6 @@ This verifies:
 
 ---
 
-## 13. License
+## 12. License
 
 This project is developed for the **PayPal AI Hackathon** and is open source under the [MIT License](https://opensource.org/licenses/MIT).
